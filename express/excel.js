@@ -1,4 +1,5 @@
 //Pasul 1 - Transformarea XLSX in JSON
+
 let selectedFile;
 // console.log(window.XLSX);
 document.getElementById('input').addEventListener("change", (event) => {
@@ -35,24 +36,33 @@ var Descriere = "";
 var Cantitate = "";
 var Pret = "";
 var ProcTVA = "";
+var Cont = "";
 
 //Pasul 3 - Crearea unui string gol cu textul din XML
 var ContinutXML = "";
 
 
 document.getElementById('button').addEventListener("click", () => {
+
+    document.getElementById("preloader").style.display = "block";
+    document.getElementById("loader").style.display = "block";
+    document.getElementById("PageContent").style.display = "none";
     XLSX.utils.json_to_sheet(data, 'out.xlsx');
     if (selectedFile) {
+
         let fileReader = new FileReader();
         fileReader.readAsBinaryString(selectedFile);
         fileReader.onload = (event) => {
+
             let data = event.target.result;
             let workbook = XLSX.read(data, { type: "binary" });
             //  console.log(workbook);
             workbook.SheetNames.forEach(sheet => {
+
+
                 let rowObject = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheet]);
                 //   console.log(rowObject);
-                document.getElementById("jsondata").innerHTML = JSON.stringify(rowObject, undefined, 4)
+                // document.getElementById("jsondata").innerHTML = JSON.stringify(rowObject, undefined, 4)
 
                 //Pasul 4 - Parcurgerea fiecarei facturi
                 var FacturiJSON = rowObject;
@@ -84,8 +94,6 @@ document.getElementById('button').addEventListener("click", () => {
                     var facturaDataScadentaPrelucrata = FacturaScadenta.split('-')
                     var facturaDataScadentaPrelucrataFinala = facturaDataScadentaPrelucrata[2] + `.` + facturaDataScadentaPrelucrata[1] + `.` + facturaDataScadentaPrelucrata[0];
                     FacturaScadenta = facturaDataScadentaPrelucrataFinala;
-
-
 
                     var ContinutXML = `<Antet>
             <FurnizorNume>`+ FurnizorNume + `</FurnizorNume>
@@ -138,19 +146,24 @@ document.getElementById('button').addEventListener("click", () => {
 
                 }
                 facturi += `</Facturi>`
+
                 // var blob = new Blob([facturi], { type: 'text/plain' });
                 // var file = new File([blob], "f_12318114_123_17-08-2020_17082020_145400.txt", { type: "text/plain" });
 
                 //Pasul 5 - Transformarea String-ului in fisier XML si descarcarea fisierului
+
                 var hiddenElement = document.createElement('a');
 
                 hiddenElement.href = 'data:attachment/text,' + encodeURI(facturi);
                 hiddenElement.target = '_blank';
                 hiddenElement.download = 'F_' + FurnizorCIF + '_' + FacturaNumar + '_' + FacturaData + '.xml';
                 hiddenElement.click();
+                document.getElementById("PageContent").style.display = "block";
+                document.getElementById("loader").style.display = "none";
+                document.getElementById("preloader").style.display = "none";
 
-                console.log(facturi);
             });
+
         }
     }
 });
